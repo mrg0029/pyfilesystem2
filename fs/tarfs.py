@@ -279,9 +279,9 @@ class ReadTarFS(FS):
         """Lazy directory cache."""
         if self._directory_cache is None:
             _decode = self._decode
-            _directory = ((_decode(info.name).strip("/"), info) for info in self._tar)
+            _directory = ((normpath(_decode(info.name).strip("/")), info) for info in self._tar)
             self._directory_cache = OrderedDict(
-                (name, info) for name, info in _directory if normpath(name)
+                (name, info) for name, info in _directory if name
             )
         return self._directory_cache
 
@@ -327,7 +327,7 @@ class ReadTarFS(FS):
         else:
             try:
                 implicit = False
-                member = self._tar.getmember(self._encode(_path))
+                member = self._directory[_path]
             except KeyError:
                 if not self.isdir(_path):
                     raise errors.ResourceNotFound(path)
